@@ -32,6 +32,8 @@ Edit these variables in the script:
 ```javascript
 const TARGET_URL = "https://target.com";
 const EXTRA_IN_SCOPE_DOMAINS = ["cdn.target.com"];
+
+in same folder set your cookie in json format to get more js files as authenticated for cookie edtior copy cookie injson format and save it: cookies.json 
 ```
 
 ### Optional Authentication
