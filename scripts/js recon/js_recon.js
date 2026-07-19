@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const TARGET_URL = 'https://pinterest.com';
+const TARGET_URL = 'https://target.com';
 const OUTPUT_DIR = path.join(__dirname, 'js_recon_output');
 
 // Additional in-scope domains beyond the primary target's own subdomains.
