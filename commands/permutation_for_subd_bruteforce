@@ -1,0 +1,79 @@
+permutation command
+# ===========================
+# Configuration
+# ===========================
+DOMAIN="dropbox.com"
+
+ALL_SUBS="all_subs.txt"
+
+RESOLVERS="/opt/recon/wordlists/subdomain_permutation/resolvers/resolvers-trusted.txt"
+
+BRUTE_WORDLIST="/opt/recon/wordlists/subdomain_permutation/words.txt"
+
+PERMS="/opt/recon/wordlists/subdomain_permutation/permutations.txt"
+
+# ===========================
+# 1. PureDNS Bruteforce
+# ===========================
+puredns bruteforce "$BRUTE_WORDLIST" "$DOMAIN" \
+    -r "$RESOLVERS" \
+    --wildcard-tests 15 \
+    -w subs_brute.txt
+
+# ===========================
+# 2. ShuffleDNS Bruteforce
+# ===========================
+shuffledns \
+    -mode bruteforce \
+    -d "$DOMAIN" \
+    -w "$BRUTE_WORDLIST" \
+    -r "$RESOLVERS" \
+    -o subs_shuffledns.txt
+
+# ===========================
+# 3. dnsgen Permutations
+# ===========================
+dnsgen "$ALL_SUBS" | sort -u | \
+puredns resolve \
+    -r "$RESOLVERS" \
+    > subs_permuted.txt
+
+# ===========================
+# 4. Gotator Permutations
+# ===========================
+gotator \
+    -sub "$ALL_SUBS" \
+    -perm "$PERMS" \
+    -depth 1 \
+    -numbers 3 \
+    -md | \
+puredns resolve \
+    -r "$RESOLVERS" \
+    > subs_gotator.txt
+
+# ===========================
+# 5. AltDNS Permutations
+# ===========================
+python3 /opt/recon/wordlists/subdomain_permutaion/altdns/altdns \
+    -i "$ALL_SUBS" \
+    -o /tmp/altdns_raw.txt \
+    -w "$BRUTE_WORDLIST"
+
+puredns resolve /tmp/altdns_raw.txt \
+    -r "$RESOLVERS" \
+    > subs_altdns.txt
+
+# ===========================
+# 6. Merge Everything
+# ===========================
+cat \
+    "$ALL_SUBS" \
+    subs_brute.txt \
+    subs_shuffledns.txt \
+    subs_permuted.txt \
+    subs_gotator.txt \
+    subs_altdns.txt \
+    2>/dev/null | sort -u > final_subs.txt
+
+echo "[+] Total unique subdomains:"
+wc -l final_subs.txt
